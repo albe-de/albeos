@@ -11,5 +11,6 @@ void enter_line();
 void write(const char* message);
 void write_char(char c);
 string get_buffer();
+void write_int(int num);
 
 #endif // VEGA_H

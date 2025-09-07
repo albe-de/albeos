@@ -74,7 +74,6 @@ void combine_strings(string* obj, const char* str2){
     }
 }
 
-
 void add_integer_to(string* obj, int integer) {
     if (integer == 0) {
         add_char(obj, '0');

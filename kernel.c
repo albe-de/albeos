@@ -3,6 +3,7 @@
 
 #include "kernel_tools/including/vega.h"
 #include "kernel_tools/including/string.h"
+#include "kernel_tools/including/alsh.h"
 #define MULTIBOOT_MAGIC     0x1BADB002
 #define MULTIBOOT_FLAGS     0x0
 #define MULTIBOOT_CHECKSUM  (-(MULTIBOOT_MAGIC + MULTIBOOT_FLAGS))
@@ -23,21 +24,24 @@ static const char keymap[128] = {
     'z','x','c','v','b','n','m',',','.','/', 0, '*', 0,' ', 0,
 };
 
-/*
- * User input manager -> controls regular commands
- * 09/02/2025
- */
 void user_input_management(char input){
+    // check for command
     if (input == '\n') {
         string input_line = get_buffer();
         char* args = substring_after_char(&input_line, ' ');
         truncate_after_char(&input_line, ' ');
 
+        int valid_cmd = compare_cmd(get_string(&input_line));
 
         write("\nCOMMAND: ");
         write(get_string(&input_line));
         write("\nARGS: ");
         write(args);
+        enter_line();
+        write("Is valid: ");
+        write_int(valid_cmd);
+
+        // cmd arg = get_string(&input_line)
     }
 
     write_char(input);
@@ -45,6 +49,7 @@ void user_input_management(char input){
 
 void kernel_main() {
     clear_screen();
+    innit_alsh();
     write("Welcome to Alsh!\n\n");
 
     for(;;){

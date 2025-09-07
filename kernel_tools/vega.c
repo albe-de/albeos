@@ -50,6 +50,13 @@ void write(const char* message) {
     lines++;
 }
 
+void write_int(int num){
+    string st;
+    create(&st, "");
+    add_integer_to(&st, num);
+    write(get_string(&st));
+}
+
 void write_char(char c) {
     // removes cursor character
     vga_put_char(x, y, ' ', VGA_COLOR_WHITE);
