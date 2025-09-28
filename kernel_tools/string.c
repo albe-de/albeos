@@ -1,178 +1,153 @@
 #include "including/string.h"
+#include "including/kernel_malloc.h"
 
-/**
- *
- * string manager for Albe's OS
- * 09/02/25
- *
- */
-
-char* get_string(string* obj) {return obj->self;}
+// Basic helpers
 int get_len(char* message) {
     int i = 0;
-    for (const char* p = message; *p != '\0'; p++) i++;
+    while (message[i] != '\0') i++;
     return i;
 }
 
-// gets index in obj of char
-int index_inof(string* obj, char target) {
-    int i = 0;
-    for (const char* chr = obj->self; *chr != '\0'; chr++) {
-        if (*chr == target) return i;
-        i++;
-    }
-    return -1;
-}
-
-char* truncate_after_char(string* obj, char c) {
-    int idx = index_inof(obj, c);
-    if (idx != -1) {
-        obj->self[idx] = '\0';
-        obj->length = idx;
-    }
-
+char* get_string(string* obj) {
     return obj->self;
 }
 
-// mainly just for getting args
-// basically a gsub function
-char* substring_after_char(string* obj, char c) {
-    int idx = index_inof(obj, c);
-    if (idx == -1 || idx + 1 >= obj->length) return "";
+// Create a new string
+void create(string* obj, char* str) {
+    int len = get_len(str);
+    obj->self = (char*)kmalloc(len + 1);  // +1 for null terminator
+    if (!obj->self) return;
 
-    // does not mess with original object
-    static char buffer[MAX_STRING_SIZE];
+    for (int i = 0; i < len; i++) obj->self[i] = str[i];
+    obj->self[len] = '\0';
+    obj->length = len;
+}
+
+// Clear string
+void clear_string(string* obj) {
+    if (!obj->self) return;
+    obj->self[0] = '\0';
+    obj->length = 0;
+}
+
+// Add a char
+void add_char(string* obj, char c) {
+    int len = obj->length;
+    char* new_buffer = (char*)kmalloc(len + 2); // +1 for new char + null
+    if (!new_buffer) return;
+
+    for (int i = 0; i < len; i++) new_buffer[i] = obj->self[i];
+    new_buffer[len] = c;
+    new_buffer[len + 1] = '\0';
+
+    obj->self = new_buffer;
+    obj->length++;
+}
+
+// Combine strings
+void combine_strings(string* obj, const char* str2) {
+    int len1 = obj->length;
+    int len2 = get_len((char*)str2);
+    char* new_buffer = (char*)kmalloc(len1 + len2 + 1);
+    if (!new_buffer) return;
+
+    for (int i = 0; i < len1; i++) new_buffer[i] = obj->self[i];
+    for (int i = 0; i < len2; i++) new_buffer[len1 + i] = str2[i];
+    new_buffer[len1 + len2] = '\0';
+
+    obj->self = new_buffer;
+    obj->length += len2;
+}
+
+// Remove char by index
+void remove_index(string* obj, int index) {
+    if (!obj->self || index < 0 || index >= obj->length) return;
+    for (int i = index; i < obj->length - 1; i++) obj->self[i] = obj->self[i + 1];
+    obj->self[obj->length - 1] = '\0';
+    obj->length--;
+}
+
+// Remove first occurrence of a char
+void remove_char(string* obj, char c) {
+    if (!obj->self) return;
+    for (int i = 0; i < obj->length; i++) {
+        if (obj->self[i] == c) {
+            remove_index(obj, i);
+            return;
+        }
+    }
+}
+
+// Truncate after a character
+char* truncate_after_char(string* obj, char c) {
+    if (!obj->self) return 0;
+    for (int i = 0; i < obj->length; i++) {
+        if (obj->self[i] == c) {
+            obj->self[i] = '\0';
+            obj->length = i;
+            break;
+        }
+    }
+    return obj->self;
+}
+
+// Truncate after index
+void truncate_after_index(string* obj, int index) {
+    if (!obj->self || index < 0 || index >= obj->length) return;
+    obj->self[index] = '\0';
+    obj->length = index;
+}
+
+// Return substring after a character
+char* substring_after_char(string* obj, char c) {
+    if (!obj->self) return 0;
+    int idx = -1;
+    for (int i = 0; i < obj->length; i++) {
+        if (obj->self[i] == c) {
+            idx = i;
+            break;
+        }
+    }
+    if (idx == -1 || idx + 1 >= obj->length) return "";
+    static char buffer[512];
     int j = 0;
-    for (int i = idx + 1; i < obj->length && j < MAX_STRING_SIZE - 1; i++) {
+    for (int i = idx + 1; i < obj->length && j < 511; i++) {
         buffer[j++] = obj->self[i];
     }
     buffer[j] = '\0';
     return buffer;
 }
 
-void truncate_after_index(string* obj, int index) {
-    if (index >= 0 && index < obj->length) {
-        obj->self[index] = '\0';      // Truncate at the index
-        obj->length = index;
+// Compare strings
+int compare_strings(string* a, string* b) {
+    if (!a->self || !b->self) return 0;
+    if (a->length != b->length) return 0;
+    for (int i = 0; i < a->length; i++) {
+        if (a->self[i] != b->self[i]) return 0;
     }
+    return 1;
 }
 
-
-void add_char(string* obj, char c) {
-    int len = obj->length;
-
-    if (len < MAX_STRING_SIZE - 1) {
-        obj->self[len] = c;
-        obj->self[len + 1] = '\0';
-        obj->length++;
-    }
-}
-
-void combine_strings(string* obj, const char* str2){
-    for (str2; *str2 != '\0'; str2++) {
-        add_char(obj, *str2);
-    }
-}
-
+// Add integer to string
 void add_integer_to(string* obj, int integer) {
+    if (!obj) return;
     if (integer == 0) {
         add_char(obj, '0');
         return;
     }
 
-    // negative integers
     if (integer < 0) {
         add_char(obj, '-');
-        integer = -integer; // Make it positive for further processing
+        integer = -integer;
     }
 
-    // 32 bit integers
     char buffer[12];
     int index = 0;
 
-    // Extract digits in reverse order
     while (integer > 0) {
-        buffer[index++] = (integer % 10) + '0'; // Convert digit to character
+        buffer[index++] = (integer % 10) + '0';
         integer /= 10;
     }
 
-    for (int i = index - 1; i >= 0; i--) {
-        add_char(obj, buffer[i]);
-    }
+    for (int i = index - 1; i >= 0; i--) add_char(obj, buffer[i]);
 }
-
-void remove_char(string* obj, char c) {
-    int len = obj->length;
-    int found = index_inof(obj, c);
-
-    if (found != -1) {
-        for (int i = found; i < len - 1; i++) {
-            obj->self[i] = obj->self[i + 1]; // Shift characters left
-        }
-        obj->self[len - 1] = '\0'; // Null terminate the string
-        obj->length--;
-    }
-}
-
-void remove_index(string* obj, int index) {
-    if (index < 0 || index >= obj->length) return;
-    int len = obj->length;
-
-    for (int i = index; i < len - 1; i++) {
-        obj->self[i] = obj->self[i + 1]; // Shift characters left
-    }
-    obj->self[len - 1] = '\0'; // Null terminate the string
-    obj->length--;
-}
-
-void clear_string(string* obj) {
-    obj->length = 0; // Set length to 0
-    obj->self[0] = '\0'; // Set the first character to null terminator
-}
-
-/**
- * @brief Creates and initializes a string object by dynamically allocating memory.
- *
- * @param obj A pointer to the string object to be initialized.
- * @param str const char* -> the actual string
- */
-void create(string* obj, char* str) {
-    int len = get_len(str);  // Get the length of the string
-    if (len < MAX_STRING_SIZE) { // Ensure it fits in the fixed-size array
-        for (int i = 0; i < len; i++) {
-            obj->self[i] = str[i];
-        }
-        obj->self[len] = '\0'; // Null terminate
-        obj->length = len;
-    }
-}
-
-
-/* EXAMPLE USAGE /*
-
-string st2;
-
-write("Index of 'o' in the string '");
-create(&st2, "feifsodvf' is: ");
-add_integer_to(&st2, index_inof((&st2), 'o'));
-write(get_string(&st2));
-string buffer1 = get_buffer();
-enter_line();
-
-write("After removing index 5, ");
-remove_index(&st2, 5);
-write(get_string(&st2));
-enter_line();
-
-write("After removing char 's', ");
-remove_char(&st2, 's');
-write(get_string(&st2));
-string buffer2 = get_buffer();
-enter_line();
-enter_line();
-
-write(get_string(&buffer1));
-enter_line();
-write(get_string(&buffer2));
-
-*/

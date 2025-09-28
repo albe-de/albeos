@@ -1,9 +1,10 @@
 #ifndef STRING_H
 #define STRING_H
-#define MAX_STRING_SIZE 512
+
+#include "kernel_malloc.h"
 
 typedef struct {
-    char self[MAX_STRING_SIZE];;
+    char* self;  // dynamically allocated buffer
     int length;
 } string;
 
@@ -20,5 +21,6 @@ void clear_string(string* obj);
 char* truncate_after_char(string* obj, char c);
 void truncate_after_index(string* obj, int index);
 char* substring_after_char(string* obj, char c);
+int compare_strings(string* a, string* b);
 
 #endif

@@ -7,7 +7,7 @@ char *commands[] = {
     "list",
     "mkfile",
     "rmfile",
-    "-help"
+    "-help",
 };
 
 int innit_alsh(){
