@@ -26,6 +26,7 @@ typedef struct directorystructure {
 } directorystructure;
 
 extern directorystructure* root_directory;
+extern directorystructure* current_directory;
 
 void initialize_files();
 void write_directory_content(directorystructure* dir, int depth);
@@ -36,5 +37,6 @@ void create_directory(string name, directorystructure* parent);
 int find_file_index(directorystructure* parent, string name);
 int find_directory_index(directorystructure* parent, string name);
 filestructure* get_file(directorystructure* parent, string filename);
+directorystructure* validate_directory_in_root(char* dir_name);
 
 #endif

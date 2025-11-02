@@ -4,6 +4,7 @@
 #include "including/kernel_malloc.h"
 
 directorystructure* root_directory = 0;
+directorystructure* current_directory = 0;
 
 void initialize_files() {
     root_directory = (directorystructure*)kmalloc(sizeof(directorystructure));
@@ -24,6 +25,8 @@ void initialize_files() {
         root_directory->containing_files[i] = 0;
         root_directory->containing_directories[i] = 0;
     }
+
+    current_directory = root_directory;
 }
 
 void write_directory_content(directorystructure* dir, int depth) {
@@ -141,4 +144,30 @@ filestructure* get_file(directorystructure* parent, string filename) {
     }
 
     return 0; // File not found
+}
+
+directorystructure* validate_directory_in_root(char* dir_name) {
+    if (!dir_name || !current_directory) return 0;
+
+    for (int i = 0; i < current_directory->dir_count; i++) {
+        directorystructure* dir = current_directory->containing_directories[i];
+        if (!dir) continue;
+
+        // Compare lengths first
+        int len = get_len(dir_name);
+        if (dir->name.length != len) continue;
+
+        // Compare each character
+        int match = 1;
+        for (int j = 0; j < len; j++) {
+            if (dir->name.self[j] != dir_name[j]) {
+                match = 0;
+                break;
+            }
+        }
+
+        if (match) return dir;
+    }
+
+    return 0; // Directory not found
 }

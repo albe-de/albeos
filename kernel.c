@@ -32,21 +32,11 @@ void user_input_management(char input){
     if (input == '\n') {
         string input_line = get_buffer();
         char* args = substring_after_char(&input_line, ' ');
+        char* comd = get_string(&input_line);
         truncate_after_char(&input_line, ' ');
 
-        int valid_cmd = compare_cmd(get_string(&input_line));
-
-        write("\nCOMMAND: ");
-        write(get_string(&input_line));
-        write("\nARGS: ");
-        write(args);
-        enter_line();
-        write("Is valid: ");
-        write_int(valid_cmd);
-
-        // cmd arg = get_string(&input_line)
+        validate_command(comd, args);
     }
-
     write_char(input);
 }
 
@@ -60,9 +50,9 @@ void test_filesystem() {
     create(&file4, "image1.png");
     create(&file5, "temp.log");
 
-    create(&dir1_name, "Documents");
-    create(&dir2_name, "Projects");
-    create(&dir3_name, "Temp");
+    create(&dir1_name, "documents");
+    create(&dir2_name, "projects");
+    create(&dir3_name, "temp");
 
     create_file(file1, root_directory, "This is the root file content.");
 
@@ -83,13 +73,13 @@ void test_filesystem() {
 
     create_file(file4, documents, "First image content."); // Documents -> image1.png
 
-    write_directory_content(root_directory, 0);
+    /*write_directory_content(root_directory, 0);
     filestructure* temp_log = get_file(temp, file5);
     if (temp_log) {
         write(get_string(&temp_log->contents));
     } else {
         write("File not found!");
-    }
+    }*/
 
 }
 
@@ -98,7 +88,7 @@ void kernel_main() {
     kmalloc_init();
     innit_alsh();
     initialize_files();
-    write("Welcome to Alsh!\n\n");
+    write("Welcome to Alsh!\nType 'help' for a list of valid commands\n\n");
     test_filesystem();
 
     // Main loop for keyboard input

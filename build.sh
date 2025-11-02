@@ -30,4 +30,4 @@ mv "kernel.elf" "$BOOT_DIR"
 grub-mkrescue -o AlbeOS.iso iso
 
 echo "Build completed. You can now boot the ISO image using QEMU:"
-echo "qemu-system-x86_64 -cdrom AlbeOS.iso"
+echo "qemu-system-x86_64 -cdrom AlbeOS.iso -vga std"
