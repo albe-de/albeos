@@ -1,10 +1,11 @@
 #include "including/alsh.h"
 #include "including/vega.h"
 #include "including/filesystem.h"
+#include "including/string.h"
 
 int num_commands = 0;
 char *commands[] = {
-    "move",   //
+    "move",
     "list",   //
     "mkfile", //
     "rmfile", //
@@ -59,16 +60,18 @@ void validate_command(char* command, char* args){
     }
     char* directory = space;
 
-    directorystructure* parent_dir;
-    if (!directory || directory[0] == '\0') {
-        parent_dir = current_directory;
-    } else {
-        parent_dir = validate_directory_in_root(directory);
-        if (!parent_dir) {
-            write("\nDirectory not found!");
-            return;
+    directorystructure* parent_dir = current_directory;
+    if (compare_string(command, "list") == 0 || compare_string(command, "cd") == 0 || compare_string(command, "move") == 0) {
+        if (directory && directory[0] != '\0') {
+            directorystructure* dir = validate_directory_in_root(directory);
+            if (!dir) {
+                write("\nDirectory not found!");
+                return;
+            }
+            parent_dir = dir;
         }
     }
+
 
     // list command
     if (compare_string(command, "list") == 0) {
@@ -144,4 +147,77 @@ void validate_command(char* command, char* args){
             write("\nError removing file.");
         }
     }
+
+    // read command
+    else if (compare_string(command, "read") == 0) {
+        string name;
+        create(&name, filename);
+
+        filestructure* file = get_file(parent_dir, name);
+        if (!file) {
+            write("\nFile not found!");
+            return;
+        }
+
+        write("\n");
+        write(get_string(&file->contents));
+    }
+
+    // write command
+    else if (compare_string(command, "write") == 0) {
+        directorystructure* parent_dir = current_directory;
+
+        string name;
+        create(&name, filename);
+
+        filestructure* file = get_file(parent_dir, name);
+        if (!file) {
+            write("\nFile not found!");
+            return;
+        }
+
+        // Free old contents
+        if (file->contents.self) {
+            kfree(file->contents.self);
+            file->contents.length = 0;
+            file->contents.self = 0;
+        }
+
+        if (directory && directory[0] != '\0') {
+            string new_content;
+            create(&new_content, directory);
+            file->contents = new_content;
+        }
+    }
+
+    // move command
+    else if (compare_string(command, "move") == 0) {
+        string name;
+        create(&name, filename);
+
+        filestructure* file = get_file(current_directory, name);
+        if (!file) {
+            write("\nFile not found in current directory!");
+            return;
+        }
+
+        directorystructure* target_dir = validate_directory_in_root(directory);
+        if (!target_dir) {
+            write("\nTarget directory not found!");
+            return;
+        }
+
+        int index = find_file_index(current_directory, name);
+        if (index >= 0) {
+            for (int i = index; i < current_directory->file_count - 1; i++) {
+                current_directory->containing_files[i] = current_directory->containing_files[i + 1];
+            }
+            current_directory->file_count--;
+        }
+
+        target_dir->containing_files[target_dir->file_count] = file;
+        target_dir->file_count++;
+        file->location = target_dir;
+    }
+
 }
