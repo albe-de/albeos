@@ -1,0 +1,44 @@
+Hello!
+This is albe here to explain how to build/run the OS
+
+Dependencies:
+1. Linux ELF tools [i686-elf-gcc] (download and move them into this Folder)
+--> gcc-multilib make bison flex libgmp3-dev libmpc-dev libmpfr-dev texinfo
+2. qemu-system-x86
+3. grub
+4. xorriso
+5. mtools
+
+Next, CD into Albe_OS (current dir) and run ./build.sh
+It should look like this:
+
+/home/$USER/.../Albe_OS
+├── AlbeOS.iso
+├── build.sh
+├── grub.cfg
+├── i686-elf-tools-linux
+├── iso
+│   └── boot
+│       ├── grub
+│       └── kernel.elf
+├── kernel.c
+├── kernel_malloc.o
+├── kernel_malloc.s
+├── kernel_tools
+│   ├── alsh.c
+│   ├── filesystem.c
+│   ├── including
+│   │   ├── alsh.h
+│   │   ├── filesystem.h
+│   │   ├── kernel_malloc.h
+│   │   ├── string.h
+│   │   └── vega.h
+│   ├── kernel_malloc.c
+│   ├── string.c
+│   └── vega.c
+├── linker.ld
+└── README
+
+Next, run the updated qemu command from inside the directory
+the build script gives you it
+EX: qemu-system-x86_64 -cdrom AlbeOS.iso -vga std

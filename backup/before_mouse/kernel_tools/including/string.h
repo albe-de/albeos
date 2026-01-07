@@ -8,7 +8,6 @@ typedef struct {
     int length;
 } string;
 
-void draw_mouse(int mouse_x, int mouse_y);
 int get_len(char* str);
 char* get_string(string* obj);
 void create(string* obj, char* str);
