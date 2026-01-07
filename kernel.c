@@ -48,10 +48,8 @@ static inline uint8_t inb(uint16_t port) {
 }
 #define true 1
 #define false 0
-
-// Global mouse state
 uint8_t mouse_cycle = 0;
-uint8_t mouse_packet[3]; // Ensure this has the [3] for the array
+uint8_t mouse_packet[3];
 int mouse_x = 400, mouse_y = 300;
 
 void user_input_management(char input){
@@ -168,9 +166,8 @@ void kernel_main() {
 
                     // Cast to (int8_t) handles negative movement correctly
                     mouse_x += (int8_t)mouse_packet[1];
-                    mouse_y -= (int8_t)mouse_packet[2]; // PS/2 Y is usually inverted
-
-                    // Optional: Prevent mouse from leaving screen (80x25 text mode example)
+                    mouse_y -= (int8_t)mouse_packet[2];
+                    
                     if (mouse_x < 0) mouse_x = 0;
                     if (mouse_x > 600) mouse_x = 600;
 
