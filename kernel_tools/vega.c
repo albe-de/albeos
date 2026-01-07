@@ -12,36 +12,27 @@ int lines = 0;
 int x = 1;
 int y = 1;
 
-// Store previous position to "erase" the cursor before drawing the new one
 static int prev_mouse_vga_x = 0;
 static int prev_mouse_vga_y = 0;
-static char prev_char_attr = 0x0F; // Default White on Black
+static char prev_char_attr = 0x0F;
 
 void draw_mouse(int mouse_x, int mouse_y) {
-    // 1. Restore the previous character's original color
     volatile char* old_vga = VGA_MEMORY + (prev_mouse_vga_y * VGA_WIDTH + prev_mouse_vga_x) * 2;
     *(old_vga + 1) = prev_char_attr;
 
-    // 2. Calculate new text-mode coordinates
-    // PS/2 coordinates are large, so we scale them to fit 80x25
     int new_x = (mouse_x / 8);
     int new_y = (mouse_y / 16);
 
-    // Clamp to screen bounds
     if (new_x >= VGA_WIDTH) new_x = VGA_WIDTH - 1;
     if (new_y >= VGA_HEIGHT) new_y = VGA_HEIGHT - 1;
     if (new_x < 0) new_x = 0;
     if (new_y < 0) new_y = 0;
 
-    // 3. Save the character's current color so we can restore it later
     volatile char* new_vga = VGA_MEMORY + (new_y * VGA_WIDTH + new_x) * 2;
     prev_char_attr = *(new_vga + 1);
 
-    // 4. Invert the color (e.g., if it was white on black, make it black on white)
-    // This makes the mouse visible over both text and empty space
     *(new_vga + 1) = 0x70; // Grey background, black text
 
-    // Save current as previous for next frame
     prev_mouse_vga_x = new_x;
     prev_mouse_vga_y = new_y;
 }
