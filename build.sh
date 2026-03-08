@@ -3,7 +3,7 @@ set -e
 
 # Define variables
 KERNEL_SRC="kernel.c"
-KERNEL_TOOLS_DIR="kernel_tools"
+KERNEL_TOOLS_DIR="dependencies"
 ISO_DIR="iso"
 BOOT_DIR="$ISO_DIR/boot"
 GRUB_DIR="$BOOT_DIR/grub"
@@ -23,7 +23,7 @@ for item in "$KERNEL_TOOLS_DIR"/*; do
 done
 
 # Compile the kernel and tool files
-./i686-elf-tools-linux/bin/i686-elf-gcc -ffreestanding -nostdlib -T "linker.ld" "$KERNEL_SRC" $kernel_deps -o "kernel.elf"
+./$KERNEL_TOOLS_DIR/i686-elf-tools-linux/bin/i686-elf-gcc -ffreestanding -nostdlib -T "linker.ld" "$KERNEL_SRC" $kernel_deps -o "kernel.elf" -lgcc
 
 echo "Built kernel files"
 mv "kernel.elf" "$BOOT_DIR"
