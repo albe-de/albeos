@@ -1,0 +1,26 @@
+----------- changelog -----------
+
+0. Rewrote Alsh for eash of use
+1. Fix string buffer growth in dependencies/string.c
+   - Avoid reallocating on every add_char()/combine_strings()
+   - Implement capacity tracking and exponential reserve
+2. Improve shell input handling in dependencies/vega.c
+   - Prevent current_line from reallocating on every keystroke
+   - Batch write operations and reduce repeated string copies
+3. Updated kernel_malloc.s with backward merging in kfree()
+    - now coalesces both previous and next free blocks to reduce fragmentation.
+    - OOM handling is solid: kmalloc returns NULL on failure, and callers handle 
+      it gracefully (e.g., by setting length/capacity to 0).
+4. Reduce duplicate copy logic across string/filesystem/alsh
+   - Add a memcpy/memmove helper
+   - Reuse it in break_args(), create(), combine_strings(), etc.
+5. integrate "is_empty_string" check
+6. Clean up time/keyboard hardware code
+
+
+----------- todo list -----------
+
+1. update the screen size / ratio
+2. REAL filesystem!
+3. create a genuien graphics interface where i can draw pixels and add images
+4. boot this and potentially erase VEGA / the current mouse
