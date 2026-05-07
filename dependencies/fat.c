@@ -168,6 +168,12 @@ static int rw_cluster(uint32_t cluster, uint32_t data_start, fat32_bpb_t* bpb, u
 }
 
 // Kept as public API (used externally)
+/* 
+this section is horrible
+please see past it
+im editing this on github.com right now so ill update it tomorrow
+clearly these next two functions ought to be removed....
+*/
 int read_directory(uint32_t dir_cluster, uint32_t data_start, fat32_bpb_t* bpb, uint8_t* buffer) {
     return rw_cluster(dir_cluster, data_start, bpb, buffer, 0);
 }
