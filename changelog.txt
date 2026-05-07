@@ -1,58 +1,74 @@
 ----------- changelog -----------
 
 0. Rewrote Alsh for eash of use
+
 1. Fix string buffer growth in dependencies/string.c
    - Avoid reallocating on every add_char()/combine_strings()
    - Implement capacity tracking and exponential reserve
+
 2. Improve shell input handling in dependencies/vega.c
    - Prevent current_line from reallocating on every keystroke
    - Batch write operations and reduce repeated string copies
+
 3. Updated kernel_malloc.s with backward merging in kfree()
     - now coalesces both previous and next free blocks to reduce fragmentation.
     - OOM handling is solid: kmalloc returns NULL on failure, and callers handle 
       it gracefully (e.g., by setting length/capacity to 0).
+
 4. Reduce duplicate copy logic across string/filesystem/alsh
    - Add a memcpy/memmove helper
    - Reuse it in break_args(), create(), combine_strings(), etc.
+
 5. integrate "is_empty_string" check
+
 6. Clean up time/keyboard hardware code
 
-7. Implement basic FAT32 filesystem (dependencies/fat.c)
+
+
+********* IMPORTANT CHANGES *********
+
+
+
+1. update the screen size / ratio
+
+2. removed all calls to VEGA graphics
+
+3. remoed alsh (right after rewritting it.... :/)
+   ...maybe ill keep it as a shell in the final product
+
+4. compltely migrated to graphics mode and VBE
+
+5. Implement basic FAT32 filesystem (dependencies/fat.c)
    - Read BPB and initialize FAT layout (fat_start, data_start, root_cluster)
    - Implement cluster_to_lba and rw_cluster helpers
    - Add directory read/write support
 
-8. Add file operations
+6. Add file operations
    - create_file(): allocates cluster, zeroes it, writes directory entry
    - write_file(): writes data to file cluster and updates size
    - read_file(): reads file data from cluster and returns buffer
    - Prevent duplicate file creation via 8.3 name matching
 
-9. Implement FAT cluster management
+7. Implement FAT cluster management
    - find_free_cluster() scans FAT for free entries
    - write_fat_entry() updates FAT correctly
    - read_fat_entry() used for chain traversal
 
-10. Add file deletion support
+8. Add file deletion support
     - delete_file(): walks FAT chain and frees all clusters
     - marks directory entry as deleted (0xE5)
     - ensures clusters are reusable after deletion
 
-11. Improve memory safety in filesystem
+9. Improve memory safety in filesystem
     - Replace per-function static zero buffers with shared cluster_buffer
     - Add cluster size bounds checking to prevent overflow
     - Prevent invalid cluster access and FAT corruption
 
-12. Expose filesystem API to kernel --> !!TEMPORARY WORK AROUND FOR NOW!!
+10. Expose filesystem API to kernel --> !!TEMPORARY WORK AROUND FOR NOW!!
     - allow create/write/read/delete from outside fat.c
     - use global FAT state (a_bpb, a_fat_start, a_data_start, a_root_cluster)
 
-********* IMPORTANT CHANGES *********
-
-1. update the screen size / ratio
-2. removed all calls to VEGA graphics
-3. remoed alsh (right after rewritting it.... :/)
-   ...maybe ill keep it as a shell in the final product
-4. compltely migrated to graphics mode and VBE
 
 ----------- todo list -----------
+
+see fat.c
