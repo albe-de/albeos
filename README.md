@@ -1,4 +1,5 @@
 ![SS of AlbeOS](./screenshot.jpeg)
+```text
 Hello!
 This is albe here to explain how to build/run the OS
 ** PLEASE NOTE THAT I'VE JUST UNDERGONE A HUGE MIGRATION
@@ -56,3 +57,5 @@ output to 127.0.0.1:5900
 You may not have to, but im using Hyprland and for some reason
 qemu just REALLY didn't want to open a window for me, so this
 was my quick-hacky workaround.
+
+```
